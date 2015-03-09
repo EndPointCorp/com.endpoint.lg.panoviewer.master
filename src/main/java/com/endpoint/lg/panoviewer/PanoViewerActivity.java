@@ -16,10 +16,6 @@
 
 package com.endpoint.lg.panoviewer;
 
-import com.endpoint.lg.support.window.WindowInstanceIdentity;
-import com.endpoint.lg.support.window.ManagedWindow;
-import com.endpoint.lg.support.window.WindowIdentity;
-
 import interactivespaces.activity.impl.web.BaseRoutableRosWebServerActivity;
 import interactivespaces.service.web.server.WebServer;
 import interactivespaces.util.data.json.JsonBuilder;
@@ -31,7 +27,7 @@ import com.endpoint.lg.support.message.RosMessageHandler;
 import com.endpoint.lg.support.message.WebsocketMessageHandler;
 import com.endpoint.lg.support.message.RosMessageHandlers;
 import com.endpoint.lg.support.message.WebsocketMessageHandlers;
-import com.endpoint.lg.support.message.streetview.MessageTypesStreetview;
+import com.endpoint.lg.support.message.panoviewer.MessageTypesPanoviewer;
 
 import java.util.Map;
 
@@ -50,8 +46,6 @@ public class PanoViewerActivity extends BaseRoutableRosWebServerActivity {
 
   private WebsocketMessageHandlers wsHandlers;
   private RosMessageHandlers rosHandlers;
-
-  private ManagedWindow window;
 
   /**
    * Sends incoming web socket messages to the web socket message handlers.
@@ -110,20 +104,11 @@ public class PanoViewerActivity extends BaseRoutableRosWebServerActivity {
   public void onActivitySetup() {
     wsHandlers = new WebsocketMessageHandlers(getLog());
 
-    relayWebsocketToRos(wsHandlers, MessageTypesStreetview.MESSAGE_TYPE_STREETVIEW_POV);
-    relayWebsocketToRos(wsHandlers, MessageTypesStreetview.MESSAGE_TYPE_STREETVIEW_PANO);
-    relayWebsocketToRos(wsHandlers, MessageTypesStreetview.MESSAGE_TYPE_STREETVIEW_LINKS);
-    relayWebsocketToRos(wsHandlers, MessageTypesStreetview.MESSAGE_TYPE_STREETVIEW_REFRESH);
+    relayWebsocketToRos(wsHandlers, MessageTypesPanoviewer.MESSAGE_TYPE_VIEWSYNC);
 
     rosHandlers = new RosMessageHandlers(getLog());
 
-    relayRosToWebsocket(rosHandlers, MessageTypesStreetview.MESSAGE_TYPE_STREETVIEW_POV);
-    relayRosToWebsocket(rosHandlers, MessageTypesStreetview.MESSAGE_TYPE_STREETVIEW_PANO);
-
-    WindowIdentity windowId = new WindowInstanceIdentity(getUuid());
-
-    window = new ManagedWindow(this, windowId);
-    addManagedResource(window);
+    relayRosToWebsocket(rosHandlers, MessageTypesPanoviewer.MESSAGE_TYPE_VIEWSYNC);
   }
 
   /**
@@ -134,30 +119,5 @@ public class PanoViewerActivity extends BaseRoutableRosWebServerActivity {
     WebServer webserver = getWebServer();
     WebConfigHandler configHandler = new WebConfigHandler(getConfiguration());
     webserver.addDynamicContentHandler(CONFIG_HANDLER_PATH, false, configHandler);
-  }
-
-  /**
-   * Shows the window when the activity is activated.
-   */
-  @Override
-  public void onActivityActivate() {
-    window.setVisible(true);
-  }
-
-  /**
-   * Hides the window when the activity is deactivated.
-   */
-  @Override
-  public void onActivityDeactivate() {
-    window.setVisible(false);
-  }
-
-  /**
-   * Applies updates to the window configuration.
-   */
-  @Override
-  public void onActivityConfiguration(Map<String, Object> update) {
-    if (window != null)
-      window.update();
   }
 }
