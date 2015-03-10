@@ -64,7 +64,7 @@
 				geometry.applyMatrix( new THREE.Matrix4().makeScale( -1, 1, 1 ) );
 
 				material = new THREE.MeshBasicMaterial( {
-					map: THREE.ImageUtils.loadTexture( pano_url );
+					map: THREE.ImageUtils.loadTexture( pano_url )
 				} );
 
 				mesh = new THREE.Mesh( geometry, material );
@@ -95,9 +95,10 @@
 
             function extraVSCallback(data) {
                 for (var i = 0; i < data.length; i++) {
-                    if (data[i].type === 'pano') {
+                    if (data[i].type === 'pano' && data[i].fileurl !== pano_url) {
                         material.map = THREE.ImageUtils.loadTexture(data[i].fileurl); //.image.src = data[i].fileurl;
                         material.map.needsUpdate = true;
+                        pano_url = data[i].fileurl;
                     }
                 }
             }

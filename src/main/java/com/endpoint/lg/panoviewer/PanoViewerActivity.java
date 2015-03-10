@@ -46,12 +46,24 @@ public class PanoViewerActivity extends BaseRoutableRosWebServerActivity {
 
   private WebsocketMessageHandlers wsHandlers;
   private RosMessageHandlers rosHandlers;
+  private Object lastMsg;
+
+  /**
+   * Sends initialization packet when a new connection arrives
+   */
+  @Override
+  public void onNewWebSocketConnection(String connectionId) {
+    if (lastMsg != null) {
+      sendWebSocketJson(connectionId, lastMsg);
+    }
+  }
 
   /**
    * Sends incoming web socket messages to the web socket message handlers.
    */
   @Override
   public void onWebSocketReceive(String connectionId, Object d) {
+    lastMsg = d;
     wsHandlers.handleMessage(connectionId, d);
   }
 
@@ -116,6 +128,7 @@ public class PanoViewerActivity extends BaseRoutableRosWebServerActivity {
    */
   @Override
   public void onActivityStartup() {
+    lastMsg = null;
     WebServer webserver = getWebServer();
     WebConfigHandler configHandler = new WebConfigHandler(getConfiguration());
     webserver.addDynamicContentHandler(CONFIG_HANDLER_PATH, false, configHandler);
