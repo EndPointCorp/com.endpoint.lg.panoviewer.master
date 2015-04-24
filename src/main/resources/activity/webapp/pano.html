@@ -80,6 +80,7 @@
 			    viewSyncEffect.setSize( window.innerWidth, window.innerHeight );
 
                 viewSyncEffect.setExtraCallback( extraVSCallback );
+                viewSyncEffect.setNavigationCallback( navigationCallback );
 
 				document.addEventListener( 'mousedown', onDocumentMouseDown, false );
 				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
@@ -93,6 +94,14 @@
 
 			}
 
+            function navigationCallback(navdata) {
+                if (navdata.data.hasOwnProperty('roll')) {
+                    lat += navdata.data.roll * 1.0;
+                }
+                if (navdata.data.hasOwnProperty('yaw')) {
+                    lon += navdata.data.yaw * 1.0;
+                }
+            }
             function extraVSCallback(data) {
                 for (var i = 0; i < data.length; i++) {
                     if (data[i].type === 'pano' && data[i].fileurl !== pano_url) {
