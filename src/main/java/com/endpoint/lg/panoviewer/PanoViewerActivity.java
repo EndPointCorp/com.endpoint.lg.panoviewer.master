@@ -16,37 +16,69 @@
 
 package com.endpoint.lg.panoviewer;
 
-import interactivespaces.activity.impl.web.BaseRoutableRosWebServerActivity;
+import com.endpoint.lg.support.window.WindowInstanceIdentity;
+import com.endpoint.lg.support.window.ManagedWindow;
+import com.endpoint.lg.support.window.WindowIdentity;
+
+import interactivespaces.activity.impl.web.BaseRoutableRosWebActivity;
 import interactivespaces.service.web.server.WebServer;
 import interactivespaces.util.data.json.JsonBuilder;
 import interactivespaces.util.data.json.JsonNavigator;
 
+import com.endpoint.lg.support.evdev.InputAbsState;
+import com.endpoint.lg.support.evdev.InputEventCodes;
 import com.endpoint.lg.support.message.MessageWrapper;
-import com.endpoint.lg.support.web.WebConfigHandler;
-import com.endpoint.lg.support.message.RosMessageHandler;
-import com.endpoint.lg.support.message.WebsocketMessageHandler;
-import com.endpoint.lg.support.message.RosMessageHandlers;
-import com.endpoint.lg.support.message.WebsocketMessageHandlers;
 import com.endpoint.lg.support.message.panoviewer.MessageTypesPanoviewer;
+import com.endpoint.lg.support.message.RosMessageHandler;
+import com.endpoint.lg.support.message.RosMessageHandlers;
+import com.endpoint.lg.support.message.WebsocketMessageHandler;
+import com.endpoint.lg.support.message.WebsocketMessageHandlers;
+import com.endpoint.lg.support.web.WebConfigHandler;
 
 import java.util.Map;
+import java.util.HashMap;
 
 /**
  * A panoramic image viewer activity, copied from Matt's streetview pano
  * activity
+ * XXX One day the stuff copied from Streetview probably ought to be put in a
+ * library somewhere
  * 
  * @author Josh Tolley <josh@endpoint.com>
  */
-public class PanoViewerActivity extends BaseRoutableRosWebServerActivity {
+public class PanoViewerActivity extends BaseRoutableRosWebActivity {
 
   /**
    * The dynamic configuration handler will catch requests for this file.
    */
   public static final String CONFIG_HANDLER_PATH = "is.config.js";
 
+  /**
+   * Coefficient of input event value to POV translation.
+   */
+  public static final double INPUT_SENSITIVITY = 0.0032;
+
+  /**
+   * How much "momentum" on a controller is needed to move forward or backward.
+   */
+  public static final int INPUT_MOVEMENT_COUNT = 10;
+
+  /**
+   * Controller forward/backward axes must exceed this value for movement (after
+   * sensitivity).
+   */
+  public static final double INPUT_MOVEMENT_THRESHOLD = 1.0;
+
+  /**
+   * After axial movement, wait this many milliseconds before moving again.
+   */
+  public static final int INPUT_MOVEMENT_COOLDOWN = 250;
+
   private WebsocketMessageHandlers wsHandlers;
   private RosMessageHandlers rosHandlers;
   private Object lastMsg;
+  private ManagedWindow window;
+  private double lastSpnavMsg;
 
   /**
    * Sends initialization packet when a new connection arrives
@@ -110,6 +142,26 @@ public class PanoViewerActivity extends BaseRoutableRosWebServerActivity {
   }
 
   /**
+   * Handle an EV_ABS state update.
+   * 
+   * @param state
+   *          the axis state
+   */
+  private void onRosAbsStateChange(InputAbsState state) {
+    Map<String, Object> data = new HashMap<String, Object>();
+    // For these panos, we only care about twisting movement
+    // data.put("x", new Double(state.getValue(InputEventCodes.ABS_X) * INPUT_SENSITIVITY));
+    // data.put("y", new Double(state.getValue(InputEventCodes.ABS_Y) * INPUT_SENSITIVITY));
+    // data.put("z", new Double(state.getValue(InputEventCodes.ABS_Z) * INPUT_SENSITIVITY));
+    data.put("roll", new Double(state.getValue(InputEventCodes.ABS_RX) * INPUT_SENSITIVITY));
+    data.put("tilt", new Double(state.getValue(InputEventCodes.ABS_RY) * INPUT_SENSITIVITY));
+    data.put("yaw", new Double(state.getValue(InputEventCodes.ABS_RZ) * INPUT_SENSITIVITY));
+
+    JsonBuilder message = MessageWrapper.newTypedMessage("navigation", data);
+    sendAllWebSocketJsonBuilder(message);
+  }
+
+  /**
    * Registers message relays and sets up window management.
    */
   @Override
@@ -121,6 +173,19 @@ public class PanoViewerActivity extends BaseRoutableRosWebServerActivity {
     rosHandlers = new RosMessageHandlers(getLog());
 
     relayRosToWebsocket(rosHandlers, MessageTypesPanoviewer.MESSAGE_TYPE_VIEWSYNC);
+
+    // handle absolute axis state changes, if activated
+    rosHandlers.registerHandler("EV_ABS", new RosMessageHandler() {
+      public void handleMessage(JsonNavigator json) {
+        if (isActivated())
+          onRosAbsStateChange(new InputAbsState(json));
+      }
+    });
+
+    WindowIdentity windowId = new WindowInstanceIdentity(getUuid());
+
+    window = new ManagedWindow(this, windowId);
+    addManagedResource(window);
   }
 
   /**
@@ -129,8 +194,34 @@ public class PanoViewerActivity extends BaseRoutableRosWebServerActivity {
   @Override
   public void onActivityStartup() {
     lastMsg = null;
+    lastSpnavMsg = 0;
     WebServer webserver = getWebServer();
     WebConfigHandler configHandler = new WebConfigHandler(getConfiguration());
     webserver.addDynamicContentHandler(CONFIG_HANDLER_PATH, false, configHandler);
+  }
+
+  /**
+   * Shows the window when the activity is activated.
+   */
+  @Override
+  public void onActivityActivate() {
+    window.setVisible(true);
+  }
+
+  /**
+   * Hides the window when the activity is deactivated.
+   */
+  @Override
+  public void onActivityDeactivate() {
+    window.setVisible(false);
+  }
+
+  /**
+   * Applies updates to the window configuration.
+   */
+  @Override
+  public void onActivityConfiguration(Map<String, Object> update) {
+    if (window != null)
+      window.update();
   }
 }
