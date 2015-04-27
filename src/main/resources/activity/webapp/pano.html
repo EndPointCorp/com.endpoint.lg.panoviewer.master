@@ -108,12 +108,10 @@
                 }
             }
             function extraVSCallback(data) {
-                for (var i = 0; i < data.length; i++) {
-                    if (data[i].type === 'pano' && data[i].fileurl !== pano_url) {
-                        material.map = THREE.ImageUtils.loadTexture(data[i].fileurl); //.image.src = data[i].fileurl;
-                        material.map.needsUpdate = true;
-                        pano_url = data[i].fileurl;
-                    }
+                if (data.type === 'pano' && data.fileurl !== pano_url) {
+                    material.map = THREE.ImageUtils.loadTexture(data.fileurl); //.image.src = data.fileurl;
+                    material.map.needsUpdate = true;
+                    pano_url = data.fileurl;
                 }
             }
 
