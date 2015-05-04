@@ -16,14 +16,22 @@
 -->
 <html>
   <head>
-    <title>Liquid Galaxy Panoramic Image Viewer</title>
+    <title>Liquid Galaxy Panoramic Image Viewer Ugly Control Panel</title>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
     <meta charset="utf-8">
+    <script src="lib/control_panel.js"></script>
   </head>
-  <body>
+  <body onload="init()">
     <noscript>
       <div><p>ERROR: JavaScript not activated</p></div>
     </noscript>
-    <a href="pano.html">Click here for a panoramic image</a>
+    <div> <a href="pano.html">Click here for the panoramic image viewer</a> </div>
+<!--    <div>
+        <button onclick="activate()">Activate</button>
+        <button onclick="deactivate()">Deactivate</button>
+    </div> -->
+    <div>
+        <input type="text" id="file_url" /><button onclick="change_pano()">Change pano</button>
+    </div>
   </body>
 </html>
