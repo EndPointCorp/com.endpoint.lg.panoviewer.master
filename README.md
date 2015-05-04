@@ -8,6 +8,7 @@ An Interactive Spaces activity for displaying panoramas
 * **space.activity.panoviewer.slave** Set this to exactly "false" for a master pano viewer, of which there should probably only be one in a space. The other activities should be set to anything else, and they'll be slaves.
 * **space.activity.panoviewer.yaw** The yaw offset angle, in degrees, this particular slave should use
 * **lg.window.viewport.target** The viewport name this activity should use
+* **space.activity.webapp.web.server.port** The port the activity's internal web server should use. This should be unique for each instance of this activity. Yes, that's kinda a pain.
 
 ## Input routes
 
