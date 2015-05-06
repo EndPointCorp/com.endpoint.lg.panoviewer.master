@@ -21,9 +21,13 @@ import com.endpoint.lg.support.window.ManagedWindow;
 import com.endpoint.lg.support.window.WindowIdentity;
 
 import interactivespaces.activity.impl.web.BaseRoutableRosWebActivity;
+import interactivespaces.service.web.server.HttpDynamicRequestHandler;
+import interactivespaces.service.web.server.HttpRequest;
+import interactivespaces.service.web.server.HttpResponse;
 import interactivespaces.service.web.server.WebServer;
 import interactivespaces.util.data.json.JsonBuilder;
 import interactivespaces.util.data.json.JsonNavigator;
+import interactivespaces.util.web.HttpClientHttpContentCopier;
 
 import com.endpoint.lg.support.evdev.InputAbsState;
 import com.endpoint.lg.support.evdev.InputEventCodes;
@@ -35,6 +39,8 @@ import com.endpoint.lg.support.message.WebsocketMessageHandler;
 import com.endpoint.lg.support.message.WebsocketMessageHandlers;
 import com.endpoint.lg.support.web.WebConfigHandler;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -52,6 +58,11 @@ public class PanoViewerActivity extends BaseRoutableRosWebActivity {
    * The dynamic configuration handler will catch requests for this file.
    */
   public static final String CONFIG_HANDLER_PATH = "is.config.js";
+
+  /**
+   * The dynamic configuration handler will catch requests for this file.
+   */
+  public static final String PROXY_HANDLER_PATH = "proxy";
 
   /**
    * Coefficient of input event value to POV translation.
@@ -79,6 +90,7 @@ public class PanoViewerActivity extends BaseRoutableRosWebActivity {
   private Object lastMsg;
   private ManagedWindow window;
   private double lastSpnavMsg;
+  private HttpClientHttpContentCopier copier;
 
   /**
    * Sends initialization packet when a new connection arrives
@@ -186,6 +198,9 @@ public class PanoViewerActivity extends BaseRoutableRosWebActivity {
 
     window = new ManagedWindow(this, windowId);
     addManagedResource(window);
+
+    copier = new HttpClientHttpContentCopier();
+    addManagedResource(copier);
   }
 
   /**
@@ -198,6 +213,7 @@ public class PanoViewerActivity extends BaseRoutableRosWebActivity {
     WebServer webserver = getWebServer();
     WebConfigHandler configHandler = new WebConfigHandler(getConfiguration());
     webserver.addDynamicContentHandler(CONFIG_HANDLER_PATH, false, configHandler);
+    webserver.addDynamicContentHandler(PROXY_HANDLER_PATH, false, new ProxyHandler());
   }
 
   /**
@@ -223,5 +239,37 @@ public class PanoViewerActivity extends BaseRoutableRosWebActivity {
   public void onActivityConfiguration(Map<String, Object> update) {
     if (window != null)
       window.update();
+  }
+
+  private class ProxyHandler implements HttpDynamicRequestHandler {
+    public void handle(HttpRequest request, HttpResponse response) {
+      String url;
+      int bytes;
+      byte[] buffer = new byte[1024*1024];
+      File tempFile;
+      Map<String, String> params = request.getUriQueryParameters();
+
+      try {
+        tempFile = File.createTempFile("pano-proxy-", ".data");
+        url = params.get("query");
+        request.getLog().info("URL: " + url);
+        response.setResponseCode(200);
+        copier.copy(url, tempFile);
+        FileInputStream fis = new FileInputStream(tempFile);
+        while (true) {
+          bytes = fis.read(buffer);
+          if (bytes == -1) {
+            break;
+          }
+          else {
+            response.getOutputStream().write(buffer, 0, bytes);
+          }
+        }
+        tempFile.delete();
+      }
+      catch (Exception e) {
+        getLog().error(e);
+      }
+    }
   }
 }
