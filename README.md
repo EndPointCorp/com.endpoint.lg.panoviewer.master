@@ -1,7 +1,7 @@
 # com.endpoint.lg.panoviewer
 Liquid Galaxy Panorama Viewer
 
-An Interactive Spaces activity for displaying panoramas
+An Interactive Spaces activity for displaying panoramas.
 
 ## Configuration
 
