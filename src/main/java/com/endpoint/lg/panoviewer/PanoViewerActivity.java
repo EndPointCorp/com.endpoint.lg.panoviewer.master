@@ -26,6 +26,7 @@ import interactivespaces.service.web.server.HttpRequest;
 import interactivespaces.service.web.server.HttpResponse;
 import interactivespaces.service.web.server.WebServer;
 import interactivespaces.util.data.json.JsonBuilder;
+import interactivespaces.util.data.json.JsonMapper;
 import interactivespaces.util.data.json.JsonNavigator;
 import interactivespaces.util.web.HttpClientHttpContentCopier;
 
@@ -39,8 +40,12 @@ import com.endpoint.lg.support.message.WebsocketMessageHandler;
 import com.endpoint.lg.support.message.WebsocketMessageHandlers;
 import com.endpoint.lg.support.web.WebConfigHandler;
 
+import com.endpoint.lg.support.message.Scene;
+import com.endpoint.lg.support.message.Window;
+
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -195,6 +200,38 @@ public class PanoViewerActivity extends BaseRoutableRosWebActivity {
       public void handleMessage(JsonNavigator json) {
         if (isActivated())
           onRosAbsStateChange(new InputAbsState(json));
+      }
+    });
+
+    rosHandlers.registerHandler("director", new RosMessageHandler() {
+      public void handleMessage(JsonNavigator json) {
+        Scene scene;
+        String jsonStr = JsonMapper.INSTANCE.toString(json.getRoot());
+
+        try {
+          scene = Scene.fromJson(jsonStr);
+        }
+        catch (IOException e) {
+          getLog().error("Error parsing scene message");
+          getLog().error(e.getMessage());
+          return;
+        }
+
+        for (Window w : scene.windows) {
+          if (w.activity.equals("pano")) {
+            getLog().info("Found a pano scene");
+
+            String field = w.assets[0];
+
+            JsonBuilder data = new JsonBuilder();
+            data.newObject("extra");
+            data.put("fileurl", w.assets[0]);
+            data.put("type", "image");
+            data.up();
+            JsonBuilder message = MessageWrapper.newTypedMessage(MessageTypesPanoviewer.MESSAGE_TYPE_VIEWSYNC, data.build());
+            sendAllWebSocketJsonBuilder(message);
+          }
+        }
       }
     });
 
