@@ -226,7 +226,8 @@ public class PanoViewerActivity extends BaseRoutableRosWebActivity {
             JsonBuilder data = new JsonBuilder();
             data.newObject("extra");
             data.put("fileurl", w.assets[0]);
-            data.put("type", "image");
+            data.put("type", "pano");
+            data.put("filetype", "image");
             data.up();
             JsonBuilder message = MessageWrapper.newTypedMessage(MessageTypesPanoviewer.MESSAGE_TYPE_VIEWSYNC, data.build());
             sendAllWebSocketJsonBuilder(message);
