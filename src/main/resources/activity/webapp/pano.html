@@ -54,11 +54,13 @@
 
 			function init() {
 
-				var container, mesh;
+				var container, mesh, vertFov;
 
 				container = document.getElementById( 'container' );
 
-				camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1100 );
+                vertFov = typeof(IS.Configuration['space.activity.panoviewer.vertFov']) !== 'undefined' ?
+                    IS.Configuration['space.activity.panoviewer.vertFov'] : 75;
+				camera = new THREE.PerspectiveCamera( vertFov, window.innerWidth / window.innerHeight, 1, 1100 );
 				camera.target = new THREE.Vector3( 0, 0, 0 );
 
 				scene = new THREE.Scene();
