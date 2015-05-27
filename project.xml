@@ -6,7 +6,7 @@
   </description>
 
   <identifyingName>com.endpoint.lg.panoviewer</identifyingName>
-  <version>1.1.3</version>
+  <version>1.1.4</version>
 
   <resources>
     <resource destinationDirectory="webapp/js/lib/jquery"

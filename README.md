@@ -6,7 +6,7 @@ An Interactive Spaces activity for displaying panoramas.
 ## Configuration
 
 * **space.activity.panoviewer.slave** Set this to exactly "false" for a master pano viewer, of which there should probably only be one in a space. The other activities should be set to anything else, and they'll be slaves.
-* **space.activity.panoviewer.yaw** The yaw offset angle, in degrees, this particular slave should use
+* **space.activity.panoviewer.yaw, space.activity.panoviewer.pitch, space.activity.panoviewer.roll** The yaw, pitch, and roll offset angles, in degrees, this particular instance should use
 * **space.activity.panoviewer.vertFov** The vertical field of view this display should show. Changing this will probably also require changing the yaw angle. Default is 75, which is most likely far bigger than you want for any large display.
 * **lg.window.viewport.target** The viewport name this activity should use
 * **space.activity.webapp.web.server.port** The port the activity's internal web server should use. This should be unique for each instance of this activity. Yes, that's kinda a pain, if you have multiple instances of the live activity on a single controller, which you'll have to do if that controller runs multiple screens.
