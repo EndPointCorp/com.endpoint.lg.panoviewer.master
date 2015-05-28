@@ -30,6 +30,7 @@
 	<body>
 
 		<div id="container"></div>
+        <div id="info"></div>
 
 		<script src="/is.config.js"></script>
 		<script src="lib/three.min.js"></script>
@@ -126,6 +127,7 @@
             function loadNewTexture(url, type) {
                 var texture;
 
+                document.getElementById('info').innerText = 'Loading new texture...';
                 console.log("Loading texture " + url + " of type " + type);
                 var proxyUrl = "http://" + window.location.host + "/proxy?query=" + url;
                 if (type === 'video') {
@@ -149,6 +151,7 @@
                         var context = canvas.getContext('2d');
                         context.drawImage(img, 0, 0);
                         texture.needsUpdate = true;
+                        document.getElementById('info').innerText = '';
                     };
                     img.src = proxyUrl;
                 }
