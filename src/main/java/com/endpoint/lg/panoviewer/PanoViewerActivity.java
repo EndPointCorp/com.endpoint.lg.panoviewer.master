@@ -240,6 +240,7 @@ public class PanoViewerActivity extends BaseRoutableRosWebActivity {
 
     window = new ManagedWindow(this, windowId);
     addManagedResource(window);
+    window.setVisible(false);
 
     copier = new HttpClientHttpContentCopier();
     addManagedResource(copier);
