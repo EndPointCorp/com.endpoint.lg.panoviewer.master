@@ -240,7 +240,6 @@ public class PanoViewerActivity extends BaseRoutableRosWebActivity {
 
     window = new ManagedWindow(this, windowId);
     addManagedResource(window);
-    window.setVisible(false);
 
     copier = new HttpClientHttpContentCopier();
     addManagedResource(copier);
@@ -257,6 +256,15 @@ public class PanoViewerActivity extends BaseRoutableRosWebActivity {
     WebConfigHandler configHandler = new WebConfigHandler(getConfiguration());
     webserver.addDynamicContentHandler(CONFIG_HANDLER_PATH, false, configHandler);
     webserver.addDynamicContentHandler(PROXY_HANDLER_PATH, false, new ProxyHandler());
+  }
+
+  @Override
+  public void onActivityPostStartup() {
+      // Trying to make the window not show up until after we've actually activated
+    getLog().info("Trying to hide pano viewer windows");
+    window.setVisible(true);
+    window.setVisible(false);
+    getLog().info("Done trying to hide pano viewer windows");
   }
 
   /**
