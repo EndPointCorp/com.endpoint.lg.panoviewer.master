@@ -221,8 +221,6 @@ public class PanoViewerActivity extends BaseRoutableRosWebActivity {
           if (w.activity.equals("pano")) {
             getLog().info("Found a pano scene");
 
-            String field = w.assets[0];
-
             JsonBuilder data = new JsonBuilder();
             data.newObject("extra");
             data.put("fileurl", w.assets[0]);
@@ -230,6 +228,8 @@ public class PanoViewerActivity extends BaseRoutableRosWebActivity {
             data.put("filetype", "image");
             data.up();
             JsonBuilder message = MessageWrapper.newTypedMessage(MessageTypesPanoviewer.MESSAGE_TYPE_VIEWSYNC, data.build());
+            getLog().info("Switching pano viewer image to " + w.assets[0]);
+            getLog().info(message);
             sendAllWebSocketJsonBuilder(message);
           }
         }

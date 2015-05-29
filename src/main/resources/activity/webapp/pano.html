@@ -127,7 +127,7 @@
             function loadNewTexture(url, type) {
                 var texture;
 
-                document.getElementById('info').innerText = 'Loading new texture...';
+                document.getElementById('info').innerText = 'Loading image...';
                 console.log("Loading texture " + url + " of type " + type);
                 var proxyUrl = "http://" + window.location.host + "/proxy?query=" + url;
                 if (type === 'video') {
