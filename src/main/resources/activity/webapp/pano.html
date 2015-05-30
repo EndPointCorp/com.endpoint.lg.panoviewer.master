@@ -131,7 +131,8 @@
                 console.log("Loading texture " + url + " of type " + type);
                 var proxyUrl = "http://" + window.location.host + "/proxy?query=" + url;
                 if (type === 'video') {
-                    videoTexture = new THREEx.VideoTexture(proxyUrl);
+                    videoTexture = new THREEx.VideoTexture(url);
+                    //videoTexture = new THREEx.VideoTexture(proxyUrl);
                     texture = videoTexture.texture;
                     texture.needsUpdate = true;
                 }
@@ -153,7 +154,8 @@
                         texture.needsUpdate = true;
                         document.getElementById('info').innerText = '';
                     };
-                    img.src = proxyUrl;
+                    img.src = url;
+                    //img.src = proxyUrl;
                 }
                 return texture;
             }
