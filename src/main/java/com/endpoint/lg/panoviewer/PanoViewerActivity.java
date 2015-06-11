@@ -26,8 +26,10 @@ import interactivespaces.service.web.server.HttpRequest;
 import interactivespaces.service.web.server.HttpResponse;
 import interactivespaces.service.web.server.WebServer;
 import interactivespaces.util.data.json.JsonBuilder;
-import interactivespaces.util.data.json.JsonMapper;
 import interactivespaces.util.data.json.JsonNavigator;
+import interactivespaces.util.data.json.StandardJsonBuilder;
+import interactivespaces.util.data.json.StandardJsonMapper;
+import interactivespaces.util.data.json.StandardJsonNavigator;
 import interactivespaces.util.web.HttpClientHttpContentCopier;
 
 import com.endpoint.lg.support.evdev.InputAbsState;
@@ -206,7 +208,7 @@ public class PanoViewerActivity extends BaseRoutableRosWebActivity {
     rosHandlers.registerHandler("director", new RosMessageHandler() {
       public void handleMessage(JsonNavigator json) {
         Scene scene;
-        String jsonStr = JsonMapper.INSTANCE.toString(json.getRoot());
+        String jsonStr = StandardJsonMapper.INSTANCE.toString(json.getRoot());
 
         try {
           scene = Scene.fromJson(jsonStr);
@@ -221,7 +223,7 @@ public class PanoViewerActivity extends BaseRoutableRosWebActivity {
           if (w.activity.equals("pano")) {
             getLog().info("Found a pano scene");
 
-            JsonBuilder data = new JsonBuilder();
+            JsonBuilder data = new StandardJsonBuilder();
             data.newObject("extra");
             data.put("fileurl", w.assets[0]);
             data.put("type", "pano");
