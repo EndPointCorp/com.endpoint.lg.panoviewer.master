@@ -34,6 +34,9 @@
       <name>comEndpointLgPanoViewer</name>
       <class>com.endpoint.lg.panoviewer.PanoViewerActivity</class>
       <configuration>
+          <property name="space.activity.group">
+              <value>generic</value>
+          </property>
           <property name="space.activity.log.level">
               <value>info</value>
           </property>
