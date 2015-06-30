@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <project type="activity" builder="java">
-  <name>Panoramic image viewer</name>
+  <name>Panoramic image viewer master</name>
   <description>
-      Displays panoramic images
+      Pano viewer master
   </description>
 
-  <identifyingName>com.endpoint.lg.panoviewer</identifyingName>
+  <identifyingName>com.endpoint.lg.panoviewer.master</identifyingName>
   <version>1.2.2</version>
 
   <resources>
@@ -31,8 +31,8 @@
   </deployments>
 
   <activity type="interactivespaces_native">
-      <name>comEndpointLgPanoViewer</name>
-      <class>com.endpoint.lg.panoviewer.PanoViewerActivity</class>
+      <name>comEndpointLgPanoViewerMaster</name>
+      <class>com.endpoint.lg.panoviewer.PanoViewerMasterActivity</class>
       <configuration>
           <property name="space.activity.group">
               <value>generic</value>
@@ -53,10 +53,7 @@
                 <value>liquidgalaxy/panoviewer/${lg.window.viewport.target}</value>
             </property>
             <property name="space.activity.routes.inputs">
-                <value>director:pano_viewsync:EV_ABS</value>
-            </property>
-            <property name="space.activity.route.input.pano_viewsync">
-                <value>/liquidgalaxy/${space.activity.group}/panoviewer/viewsync</value>
+                <value>director:EV_ABS</value>
             </property>
             <property name="space.activity.route.input.director">
                 <value>/director/scene</value>
